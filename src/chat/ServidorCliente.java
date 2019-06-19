@@ -8,13 +8,10 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 
 public class ServidorCliente implements MensagemInterface{
     
-    private Chat chat = new Chat(this);
+    private final Chat chat = new Chat(this);
     private Usuario usuario;
     private String ipServidor;
     private MensagemInterface objeto;
@@ -31,7 +28,6 @@ public class ServidorCliente implements MensagemInterface{
         this.chat.adicionarMensagem("<br>Conectado! Olá <b>" + this.usuario.getNome() + "</b>");
         
         System.out.println("Conectado ao servidor: " + this.ipServidor);
-        
     }
     
     public void enviarMensagemServidor(String mensagem) throws RemoteException{
@@ -45,7 +41,9 @@ public class ServidorCliente implements MensagemInterface{
 
     @Override
     public List<String> conectarUsuario(String ipCliente, String nome) throws RemoteException {
-        //pensar em algo legal para mostrar
+        System.out.println("Outro usuario tentou realizar a conexão em sua maquina cliente"
+                         + "Nome: " + nome
+                         + "IP: " + ipCliente);
         return new ArrayList<>();
     }
     

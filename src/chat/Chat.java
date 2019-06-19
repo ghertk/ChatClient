@@ -1,30 +1,38 @@
 package chat;
 
+import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 
 public class Chat extends javax.swing.JFrame {
 
-    private ServidorCliente servidor;
-    private String prefixo = "<html>";
-    private String sufixo = "</html>";
-    private String elementoQuebraLinha = "<br>";
+    private final ServidorCliente servidor;
+    private final String prefixo = "<html>";
+    private final String sufixo = "</html>";
+    private final String elementoQuebraLinha = "<br>";
     private String mensagens = "";
-    private StringBuilder construtorMensagem = new StringBuilder();
+    private final StringBuilder construtorMensagem = new StringBuilder();
     
     public Chat(ServidorCliente servidor) {
         initComponents();
         this.servidor = servidor;
+        this.botaoEnviar.setMnemonic(KeyEvent.VK_ENTER);
     }
     
     public void adicionarMensagem(String mensagem) {
         this.construtorMensagem.append(this.mensagens);
-        this.construtorMensagem.append(mensagem + this.elementoQuebraLinha);
+        this.construtorMensagem.append(mensagem).append(this.elementoQuebraLinha);
         this.chatGeral.setText(this.prefixo + this.construtorMensagem.toString() + this.sufixo);
         this.mensagens = this.construtorMensagem.toString();
         this.construtorMensagem.setLength(0);
+    }
+    
+    private void enviarMensagemServidor() {
+        try {
+            this.servidor.enviarMensagemServidor(this.mensagemEnvio.getText());
+            this.limpaCampoMensagem();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
     
     private void verificaTamanhoMensagem() {
@@ -32,6 +40,10 @@ public class Chat extends javax.swing.JFrame {
         if(mensagem.length() > 200) {
             this.mensagemEnvio.setText(mensagem.substring(0, 200));
         }
+    }
+    
+    private void limpaCampoMensagem() {
+        this.mensagemEnvio.setText("");
     }
 
     @SuppressWarnings("unchecked")
@@ -60,6 +72,9 @@ public class Chat extends javax.swing.JFrame {
         mensagemEnvio.setColumns(20);
         mensagemEnvio.setRows(5);
         mensagemEnvio.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                mensagemEnvioKeyPressed(evt);
+            }
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 mensagemEnvioKeyReleased(evt);
             }
@@ -98,16 +113,21 @@ public class Chat extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botaoEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoEnviarActionPerformed
-        try {
-            this.servidor.enviarMensagemServidor(this.mensagemEnvio.getText());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.enviarMensagemServidor();
     }//GEN-LAST:event_botaoEnviarActionPerformed
 
     private void mensagemEnvioKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mensagemEnvioKeyReleased
         this.verificaTamanhoMensagem();
+        if(evt.getKeyCode() == 10) {
+            this.limpaCampoMensagem();
+        }
     }//GEN-LAST:event_mensagemEnvioKeyReleased
+
+    private void mensagemEnvioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mensagemEnvioKeyPressed
+        if(evt.getKeyCode() == 10) {
+            this.enviarMensagemServidor();
+        }
+    }//GEN-LAST:event_mensagemEnvioKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botaoEnviar;
@@ -116,5 +136,4 @@ public class Chat extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea mensagemEnvio;
     // End of variables declaration//GEN-END:variables
-
 }
